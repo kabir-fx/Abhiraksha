@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  hashedPassword String    @map("hashed_password")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  hospital Hospital?
+
+  @@map("users")
+}
+
+model Hospital {
+  id                 String   @id @default(cuid())
+  ownerId            String   @unique @map("owner_id")
+  name               String
+  registrationNumber String   @map("registration_number")
+  nabhStatus         String   @map("nabh_status")
+  state              String
+  bedCapacity        Int      @map("bed_capacity")
+  contactPerson      String   @map("contact_person")
+  billingEmail       String   @map("billing_email")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@map("hospitals")
+}
+
+model InsurancePolicy {
+  policyNumber        String   @id @unique @map("policy_number")
+  patientName         String   @map("patient_name")
+  billNumber          String   @map("bill_number")
+  admissionDate       String   @map("admission_date")
+  lengthOfStayDays    Int      @map("length_of_stay_days")
+  grossTotal          Float    @map("gross_total")
+  discount            Float    @map("discount")
+  netPayable          Float    @map("net_payable")
+  
+  // Room Rent
+  perDayRate          Float    @map("per_day_rate")
+  days                Int
+  roomRentTotal       Float    @map("room_rent_total")
+
+  // ICU
+  icuTotal            Float    @map("icu_total")
+  icuDays             Int      @map("icu_days")
+
+  // Procedure Breakdown
+  doctorVisitCharges  Float    @map("doctor_visit_charges")
+  surgeryCharges      Float    @map("surgery_charges")
+  anesthesiaCharges   Float    @map("anesthesia_charges")
+  procedureTotal      Float    @map("procedure_total")
+
+  // Other Charges
+  otCharges           Float    @map("ot_charges")
+  equipmentCharges    Float    @map("equipment_charges")
+  pharmacyCharges     Float    @map("pharmacy_charges")
+  investigationCharges Float   @map("investigation_charges")
+  nursingCharges      Float    @map("nursing_charges")
+  consumablesCharges  Float    @map("consumables_charges")
+  miscellaneousCharges Float   @map("miscellaneous_charges")
+
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@map("insurance_policies")
+}
